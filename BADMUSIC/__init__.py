@@ -30,7 +30,13 @@ app = BADBOT()
 
 userbot = Userbot()
 
-from .platforms import PlaTForms
+from .platforms import *
 
-Platform = PlaTForms()
+YouTube = YouTubeAPI()
+Carbon = CarbonAPI()
+Spotify = SpotifyAPI()
+Apple = AppleAPI()
+Resso = RessoAPI()
+SoundCloud = SoundAPI()
+Telegram = TeleAPI()
 HELPABLE = {}
