@@ -22,5 +22,6 @@ uvloop==0.21.0
 werkzeug
 PyYAML~=6.0.3
 kurigram>=2.2.13
+git+https://github.com/TheChampu/TheAPI
 https://github.com/yt-dlp/yt-dlp/archive/master.zip
 https://github.com/KSKOP69/youtube-search-python/archive/ksk.zip
