@@ -29,8 +29,6 @@ def install_req(cmd: str) -> Tuple[str, str, int, int]:
             process.pid,
         )
 
-    return loop.run_until_complete(install_requirements())
-
 
 def git():
     REPO_LINK = config.UPSTREAM_REPO
