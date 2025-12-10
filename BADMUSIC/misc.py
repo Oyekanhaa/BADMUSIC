@@ -1,6 +1,5 @@
-# Copyright (C) 2024 by Badhacker98@Github, < https://github.com/Badhacker98 >.
+# Copyright (C) 2024 by Badhacker98@Github
 # Owner https://t.me/ll_BAD_MUNDA_ll
-
 
 import socket
 import time
@@ -10,11 +9,9 @@ from pyrogram import filters
 
 import config
 from BADMUSIC.core.mongo import pymongodb
-
 from .logging import LOGGER
 
 SUDOERS = filters.user()
-
 
 HAPP = None
 _boot_ = time.time()
@@ -42,47 +39,60 @@ XCB = [
 
 
 def dbb():
-    global db
-    global clonedb
+    global db, clonedb
     db = {}
     clonedb = {}
-    LOGGER(__name__).info(f"Database Initialized.")
+    LOGGER(__name__).info("Database Initialized.")
 
 
 def sudo():
     global SUDOERS
     OWNER = config.OWNER_ID
-    if config.MONGO_DB_URI is None:
+
+    # ✅ MOST IMPORTANT FIX
+    # Mongo abhi init nahi hua → crash se bachao
+    if pymongodb is None:
         for user_id in OWNER:
             SUDOERS.add(user_id)
-    else:
-        sudoersdb = pymongodb.sudoers
-        sudoers = sudoersdb.find_one({"sudo": "sudo"})
-        sudoers = [] if not sudoers else sudoers["sudoers"]
-        for user_id in OWNER:
-            SUDOERS.add(user_id)
-            if user_id not in sudoers:
-                sudoers.append(user_id)
-                sudoersdb.update_one(
-                    {"sudo": "sudo"},
-                    {"$set": {"sudoers": sudoers}},
-                    upsert=True,
-                )
-        if sudoers:
-            for x in sudoers:
-                SUDOERS.add(x)
-    LOGGER(__name__).info(f"Sudoers Loaded.")
+        LOGGER(__name__).warning(
+            "MongoDB not initialized yet. Using OWNER_ID as sudoers."
+        )
+        return
+
+    sudoersdb = pymongodb.sudoers
+    sudoers_data = sudoersdb.find_one({"sudo": "sudo"})
+    sudoers = [] if not sudoers_data else sudoers_data.get("sudoers", [])
+
+    for user_id in OWNER:
+        SUDOERS.add(user_id)
+        if user_id not in sudoers:
+            sudoers.append(user_id)
+
+    sudoersdb.update_one(
+        {"sudo": "sudo"},
+        {"$set": {"sudoers": sudoers}},
+        upsert=True,
+    )
+
+    for user_id in sudoers:
+        SUDOERS.add(user_id)
+
+    LOGGER(__name__).info("Sudoers Loaded.")
 
 
 def heroku():
     global HAPP
-    if is_heroku:
-        if config.HEROKU_API_KEY and config.HEROKU_APP_NAME:
-            try:
-                Heroku = heroku3.from_key(config.HEROKU_API_KEY)
-                HAPP = Heroku.app(config.HEROKU_APP_NAME)
-                LOGGER(__name__).info(f"Heroku App Configured")
-            except BaseException:
-                LOGGER(__name__).warning(
-                    f"Please make sure your Heroku API Key and Your App name are configured correctly in the heroku."
-                )
+
+    # ✅ function call fix
+    if not is_heroku():
+        return
+
+    if config.HEROKU_API_KEY and config.HEROKU_APP_NAME:
+        try:
+            Heroku = heroku3.from_key(config.HEROKU_API_KEY)
+            HAPP = Heroku.app(config.HEROKU_APP_NAME)
+            LOGGER(__name__).info("Heroku App Configured")
+        except Exception as e:
+            LOGGER(__name__).warning(
+                f"Heroku init failed: {e}"
+            )
