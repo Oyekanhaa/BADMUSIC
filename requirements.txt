@@ -20,6 +20,7 @@ spotipy
 unidecode
 uvloop==0.21.0
 werkzeug
+emojis
 PyYAML~=6.0.3
 kurigram>=2.2.13
 git+https://github.com/TheChampu/TheAPI
