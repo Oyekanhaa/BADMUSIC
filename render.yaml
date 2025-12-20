@@ -1,4 +1,1 @@
-build:
-  docker:
-    worker: Dockerfile
-    
+Fucked
